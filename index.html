@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Visionneuse Zones Humides de Bogota</title>
+		<meta charset="UTF-8">
+		<!-- Téléchargement de la bibliothèque Leaflet.js -->
+		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+		<!-- Importer le plugin AJAX -->
+		<script src="plugins/leaflet.ajax.min.js"></script>
+		<!-- Téléchargement des instructions CSS de Leaflet, qui serviront à styliser les éléments de l'interface de la carte -->
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+		<!-- Inclure le contrôle plein écran-->
+		<!-- Licence ISC  
+		Copyright (c) 2015, MapBox -->
+        <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+		<link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
+		<!-- Plugin Timeline slider -->
+		<!-- Importation de JQuery timeline-slider-->
+		<!-- MIT Licence
+		Copyright (c) 2019 Sol Vitkin -->
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<script src="plugins/leaflet-timeline-slider.min.js"></script>
+		<!-- Plugin multiseelect -->
+		<!-- Bootstrap (https://github.com/davidstutz/bootstrap-multiselect) -->
+		<!-- Copyright (c) 2012 - 2021 David Stutz -->
+		<!-- Licenced under Apache Licence, Version 2.0 -->
+		<script type="text/javascript" src="plugins/bootstrap-multiselect.js"></script>
+		<link rel="stylesheet" href="plugins/bootstrap-multiselect.css" type="text/css"/>
+		<!--Importation des instructions CSS et des fonction JS de Bootstrap-->
+		<!-- Licenced MIT, docs CC BY 3.0. -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+		<!-- Loading control -->
+		<!-- License MIT -->
+		<!-- Copyright (c) 2013 Eric Brelsford -->
+		<link rel="stylesheet" href="https://rawgithub.com/ebrelsford/Leaflet.loading/master/src/Control.Loading.css">
+		<script src="https://rawgithub.com/ebrelsford/Leaflet.loading/master/src/Control.Loading.js"></script>
+		<!-- Print -->
+		<!-- Licence MIT
+		Copyright (c) 2017 Igor Vladyka <igor.vladyka@gmail.com> (https://github.com/Igor-Vladyka/) -->
+		<script src="plugins/leaflet.browser.print.min.js"></script>
+		
+	<style>
+		html, body {height: 100%; margin: 4;}
+		#Carte {width: 100%; height: 92%;}
+		.boite1 {
+			padding: 16px 16px;
+			font: 16px/18px times;
+			background: white;
+			background: rgba(255,255,255,.8);
+			box-shadow: 0 0 15px rgba(0,0,0,.2);
+			border-radius: 5px;
+		}
+			
+		.info h4 {
+			margin: 0 0 5px; color: #777;
+		}
+	
+		.legend {
+			text-align: left;
+			line-height: 20px;
+			color: #555;
+		}
+		
+		.legend i {
+			font : 18px Helvetica;
+			width: 18px;
+			height: 18px;
+			float: left;
+			margin-right: 8px;
+			opacity: .7
+		}
+
+		h1 {
+			font-family: segoe;
+			font-size: 20pt;
+			color: rgb(10,7,133);
+			text-align:center;
+		}
+			
+		p {
+			font-family: segoe;
+			font-size: 15pt;
+			color: black;
+			text-align:justify;
+		}
+			
+	</style>
+	</head>
+	
+	<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light static-top">
+		<a class="navbar-brand" href="http://humedalesdebogota.ambientebogota.gov.co/inicio/">
+			<img src= "image/wetland.png" width="45" height = "45" alt >
+		</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<!-- <form class="form-inline my-2 my-lg-0"> -->
+					<li class= "nav-item">		
+					<!-- Création du select des zones humides a voir -->
+						<select class="custom" id="zh" multiple="multiple">
+							<option value="Cordoba">Cordoba</option>
+							<option value="Jaboque">Jaboque</option>
+							<option value="Torca_Guaymaral">Torca-Guaymaral</option>
+							<option value="Capellania">Capellania</option>
+							<option value="Juan_Amarillo">Juan Amarillo</option>
+							<option value="Conejera">Conejera</option>
+							<option value="La_Isla">La Isla</option>
+							<option value="La_Vaca">La Vaca</option>
+							<option value="Santa_Maria_del_Lago">Santa Maria del Lago</option>
+							<option value="Techo">Techo</option>
+							<option value="Tibanica">Tibanica</option>
+							<option value="Burro">El Burro</option>
+							<option value="Meandro_del_Say">Meandro del Say</option>
+							<option value="Salitre">Salitre</option>
+							<option value="Tunjo">Tunjo</option>
+						</select>
+						<!-- <label class="form-label select-label">Choisissez la zone humide à voir</label> -->
+					</li>
+					<!-- </form> -->
+			</ul>
+		<h1 class="text-uppercase">Changements spatio-temporels des zones humides de Bogota, Colombia 1940, 1970, 2000</h1>
+		</div>
+		
+	</nav>
+		<!--		Création d'un <div> qui contiendra la carte-->
+		<div id='Carte'></div>
+
+		<!--		Début du script JavaScript-->
+		<script>
+			
+		var layers2;
+		var zh_sel;	//variable qui gardera la liste des zones humides sélectionneées pour l'utilisateur-trice
+		// Initialisation de la carte avec plusieurs fonds de carte
+		// Nous mettons l'adresse de l'API MapBox dans une variable 'mapboxUrl'.
+		mapboxUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoieWVubnljdWVsbGFyIiwiYSI6ImNrbGd0ZnBpMjI4Nngyb3RrdXJkZmpmM3oifQ.eqHaowCnKwB8KgRe_auZfQ'
+		// Création d'une variable dans laquelle nous mettons les informations d'attribution
+		mapboxAttribution = 'Fond de carte &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' + '<a href="https://creativecommons.org/Licences/by-sa/2.0/">CC-BY-SA</a>, ' + 'via © <a href="https://www.mapbox.com/">Mapbox</a> Données &copy; <a href="https://visorgeo.ambientebogota.gov.co/?lon=-74.088180&lat=4.661370&z=11&l=5:1">Secretaría Distrital de Ambiente</a>'
+		// Création des quatre fond de carte en réutilisant les variables précédemment céées
+		light = L.tileLayer(mapboxUrl, {id: 'mapbox/light-v10', attribution: mapboxAttribution})
+		streets = L.tileLayer(mapboxUrl, {id: 'mapbox/streets-v11', attribution: mapboxAttribution})
+		sat = L.tileLayer(mapboxUrl, {id: 'mapbox/satellite-streets-v11', attribution: mapboxAttribution})
+					
+        //Création d'une variable "maCarte" qui contiendra... ma carte.
+		maCarte = L.map('Carte',{
+			center: [4.680303, -74.104251],
+			zoom: 12,
+			layers: [streets,sat,light],
+			fullscreenControl: { 
+				pseudoFullscreen: false,
+				title: {
+					'false': 'Voir plein écran',
+					'true': 'Sortir plein écran'
+				}
+			}
+		})
+		//boîte de control pour le contrôle plein écran
+		
+
+		//boîte de control qui se déclenche à chaque chargement de données
+		var loadingControl = L.Control.loading({
+            separate: true
+        }).addTo(maCarte)
+		
+        baseMaps = {
+			"Rues": streets,
+			"Satellite": sat,
+			"Gris": light,
+		}
+		//boite de control info polygones
+		// contrôle qui affiche la boite d'état 1 au survol
+		boite1 = L.control({'position': 'topright'})
+		boite1.onAdd = function (maCarte) {
+			this._div = L.DomUtil.create('div', 'boite1'); // créer un div avec une classe "boite 1"
+			this.update()
+			return this._div
+		}
+		//montre le nom de la zone humide et de la couverture survolée
+		boite1.update = function (polygoneSurvole) {
+			if (typeof polygoneSurvole !== 'undefined') {
+				information = polygoneSurvole.nombre + ' : <b>' + polygoneSurvole.cobertura + '</b>'
+			}
+			else {
+				information = '<em>Pointez une zone humide</em>'
+			}
+			//'<h1> Changement zones humides de Bogota, Colombia <br> 1940, 1970, 2000</h1><hr>'
+				this._div.innerHTML = information
+			}
+		boite1.addTo(maCarte)
+		//Ajoute la boîte de control des fonds à la carte	
+		L.control.layers(baseMaps).addTo(maCarte)
+		
+		//fonction de la couleur
+		function getColor (valeur) {
+			if (valeur == 'Arbustes') {
+				couleur = '#bdfa03'
+			}
+			else if (valeur == 'Constructions') {
+				couleur = '#d7191c'
+			}
+			else if (valeur == 'Forêts') {
+				couleur = '#8d3f36'
+			}
+			else if (valeur == 'Eau') {
+				couleur = '#1f78b4'
+			}
+			else if (valeur == 'Pâtures') {
+				couleur = '#1fa288'
+			}
+			else if (valeur == 'Végétation aquatique') {
+				couleur = '#4ac26d'
+			}
+			else if (valeur == 'Végétation herbacée') {
+				couleur = '#9eda39'
+			}
+			return couleur  
+		}
+		//style des couches
+		function estilo(feature) {
+			return {
+				weight: .5,
+				opacity: .5,
+				color: 'black',
+				dashArray: '3',
+				fillOpacity: 0.95,
+				fillColor: getColor(feature.properties.cobertura)
+			}
+		}		
+		//Listeners
+		//zoom
+		function zoomToFeature(e) {
+			maCarte.fitBounds(e.target.getBounds())
+		}
+		//pour souligner chaque élément des couches	
+		function highlightFeature(e) {
+			var layer = e.target
+			layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.5
+			});
+		boite1.update(layer.feature.properties)
+		}
+		//pour arrêter de mettre en évidence les éléments				
+		function resetHighlight(e) {
+			layers2.resetStyle(e.target)
+			boite1.update()
+		}
+		//pour attacher les listeners aux couches	
+		function onEachFeature(feature, layer) {
+			layer.on({
+				click: zoomToFeature,
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+			})
+		}
+		//Fonction de chargement des données
+		function charge(object){
+			layers2 = new L.GeoJSON.AJAX('data/' +  object.label +  '.geojson', {
+			filter: function(feature, layer){
+				return zh_sel.includes(feature.properties.nombre)},
+			style: estilo,
+			onEachFeature: onEachFeature
+			}).addTo(maCarte)
+		
+		//Controle pour le menu deroulant des zones humides multiselect
+		$(document).ready(function() {
+			$('#zh').multiselect({
+				nonSelectedText: 'Sélectionnez une ou plusieurs zones humides',
+				allSelectedText: 'Toutes les couches',
+				enableFiltering: true,
+				onChange: function() {
+					maCarte.eachLayer(function(layer){
+						if (layer instanceof L.GeoJSON)
+							maCarte.removeLayer(layer)
+						})
+					zh_sel = this.$select.val()
+					//Chargement des données geoJSON 
+					charge(object)
+				}
+			});
+		})};	
+		//Implémentation de Timeline slider
+		//Fonction qui s'exécutera lorsque l'élément de la chronologie est choisi
+		function changeMapFunction(object){
+			if (maCarte.hasLayer(layers2) == true){
+				maCarte.removeLayer(layers2)
+			}
+			charge(object)
+		}
+		//boîte de control du curseur de chronologie	
+		L.control.timelineSlider({
+			title: 'Choisissez',
+            timelineItems: ["1940","1970","2000"],
+            changeMap: changeMapFunction }).addTo(maCarte);
+			
+		//Legend qui montre la symbologie des couvertures des zones humides
+		L.LegendControl = L.Control.extend({
+			onAdd: function (maCarte) {
+				var div = L.DomUtil.create('div', 'boite1 legend');
+				var categories = ["Arbustes","Constructions","Forêts","Eau","Pâtures","Végétation aquatique","Végétation herbacée"];
+				palette = ['#bdfa03','#d7191c','#8d3f36','#1f78b4','#1fa288','#4ac26d','#9eda39'];
+				var labels = [];
+					for (i = 0; i < categories.length ; i++) {
+						labels.push('<i style="background:' + palette[i] + '"></i>' + categories[i] + " <br>")
+					}
+				div.innerHTML = '<h1>Couvertures</h1><hr>' + labels.join('<br>');
+					return div;
+			}
+		});
+		L.legendControl = function(options) {
+		  	return new L.LegendControl(options);
+		};
+		//ajoute de la boîte de control légende
+		L.legendControl({position: 'bottomleft'}).addTo(maCarte);
+			
+		//Plugin qui laisse imprimer la carte avec le plugin leaflet.browser.print en format .pdf
+		L.control.browserPrint({
+			title: 'Imprimer',
+		}).addTo(maCarte);
+		//pour imprimer la légende aussi
+		maCarte.on("browser-print-start", function(e){
+			L.legendControl({position: 'bottomleft'}).addTo(e.printMap);
+		});	
+		</script>
+	</body>
+</html>
